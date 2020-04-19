@@ -16,7 +16,6 @@
 Module.register('MMM-MyCommute', {
 
   defaults: {
-    apikey: '',
     origin: '65 Front St W, Toronto, ON M5J 1E6',
     startTime: '00:00',
     endTime: '23:59',
@@ -185,9 +184,8 @@ Module.register('MMM-MyCommute', {
         var destHideDays = d.hideDays || [];
 
         if ( this.isInWindow( destStartTime, destEndTime, destHideDays ) ) {
-          var url = 'https://maps.googleapis.com/maps/api/directions/json' + this.getParams(d);
-          destinations.push({ url:url, config: d});
-          console.log(url);          
+          destinations.push({ config: d, global_config: this.config });
+          console.log('foo');          
         }
 
       }
@@ -207,66 +205,6 @@ Module.register('MMM-MyCommute', {
       this.inWindow = false;
       this.isHidden = true;
     }
-
-  },
-
-  getParams: function(dest) {
-
-    var params = '?';
-    params += 'origin=' + encodeURIComponent(this.config.origin);
-    params += '&destination=' + encodeURIComponent(dest.destination);
-    params += '&key=' + this.config.apikey;
-
-    //travel mode
-    var mode = 'driving';
-    if (dest.mode && this.travelModes.indexOf(dest.mode) != -1) {
-      mode = dest.mode;
-    } 
-    params += '&mode=' + mode;
-
-    //transit mode if travelMode = 'transit'
-    if (mode == 'transit' && dest.transitMode) {
-      var tModes = dest.transitMode.split("|");
-      var sanitizedTransitModes = '';
-      for (var i = 0; i < tModes.length; i++) {
-        if (this.transitModes.indexOf(tModes[i]) != -1) {
-          sanitizedTransitModes += (sanitizedTransitModes == '' ? tModes[i] : "|" + tModes[i]);
-        }
-      }
-      if (sanitizedTransitModes.length > 0) {
-        params += '&transit_mode=' + sanitizedTransitModes;
-      }
-    } 
-    if (dest.alternatives == true) {
-      params += '&alternatives=true';
-    }
-
-    if (dest.waypoints) {
-      var waypoints = dest.waypoints.split("|");
-      for (var i = 0; i < waypoints.length; i++) {
-        waypoints[i] = "via:" + encodeURIComponent(waypoints[i]);
-      }
-      params += '&waypoints=' + waypoints.join("|");
-    } 
-
-    //avoid
-    if (dest.avoid) {
-      var a = dest.avoid.split("|");
-      var sanitizedAvoidOptions = '';
-      for (var i = 0; i < a.length; i++) {
-        if (this.avoidOptions.indexOf(a[i]) != -1) {
-          sanitizedAvoidOptions += (sanitizedAvoidOptions == '' ? a[i] : "|" + a[i]);
-        }
-      }
-      if (sanitizedAvoidOptions.length > 0) {
-        params += '&avoid=' + sanitizedAvoidOptions;
-      }
-
-    }
-
-    params += '&departure_time=now'; //needed for time based on traffic conditions
-
-    return params;
 
   },  
 
