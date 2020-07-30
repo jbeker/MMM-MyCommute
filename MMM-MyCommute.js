@@ -121,6 +121,7 @@ Module.register('MMM-MyCommute', {
         Log.info('Starting module: ' + this.name);
 
         this.predictions = new Array();
+        this.locations = new Array();
         this.loading = true;
         this.inWindow = true;
         this.isHidden = false;
@@ -225,7 +226,7 @@ Module.register('MMM-MyCommute', {
         timeEl.classList.add("travel-time");
 
         if (timeInTraffic < 120) {
-            timeEl.innerHTML = 'Here';
+            timeEl.innerHTML = '';
             timeEl.classList.add("status-good");
         }
         else if (timeInTraffic != null) {
@@ -308,6 +309,8 @@ Module.register('MMM-MyCommute', {
 
             var p = this.predictions[i];
 
+            console.log(p);
+
             var row = document.createElement("div");
             row.classList.add("row");
 
@@ -339,6 +342,7 @@ Module.register('MMM-MyCommute', {
             } else if (p.routes.length == 1 || !this.config.showSummary) {
 
                 var r = p.routes[0];
+                var l = p.locations.results[0];
 
                 row.appendChild(this.formatTime(r.time, r.timeInTraffic));
 
@@ -353,7 +357,11 @@ Module.register('MMM-MyCommute', {
                         this.buildTransitSummary(r.transitInfo, summary);
 
                     } else {
-                        summary.innerHTML = r.summary;
+                        if (r.time > 120) {
+                            summary.innerHTML = l.formatted_address;
+                        } else {
+                            summary.innerHTML = 'Home';
+                        }
                     }
                     row.appendChild(summary);
                 }
@@ -388,16 +396,9 @@ Module.register('MMM-MyCommute', {
 
             }
 
-
-
-
-
-
             var svg = this.svgIconFactory(symbolIcon);
             icon.appendChild(svg);
             row.appendChild(icon);
-
-
 
             wrapper.appendChild(row);
         }

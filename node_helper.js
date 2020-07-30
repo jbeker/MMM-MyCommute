@@ -68,6 +68,7 @@ module.exports = NodeHelper.create({
                         var url = 'https://maps.googleapis.com/maps/api/directions/json' + self.getParams(dest);
                         console.log(url);
                         self.getAddress(url, dest, function (prediction) {
+                            prediction['locations'] = address.payload;
                             predictions[index] = prediction;
                             returned++;
 
